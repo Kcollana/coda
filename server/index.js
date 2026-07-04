@@ -1,4 +1,16 @@
 require('dotenv').config();
+
+// node-pty's WindowsPtyAgent.kill() calls an internal promise with no .catch()
+// (fails with "AttachConsole failed" on some Windows/Node combos), which would
+// otherwise crash the whole process — and every WebSocket in it — every time a
+// terminal session ends. Log and keep running instead.
+process.on('unhandledRejection', (reason) => {
+  console.error('[server] Unhandled rejection (ignored):', reason);
+});
+process.on('uncaughtException', (err) => {
+  console.error('[server] Uncaught exception (ignored):', err);
+});
+
 const http = require('http');
 const express = require('express');
 const WebSocket = require('ws');
